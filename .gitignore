@@ -3,3 +3,4 @@
 *.sw*
 .bundle
 Gemfile.lock
+*.gem
