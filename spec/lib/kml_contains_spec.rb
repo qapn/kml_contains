@@ -130,6 +130,143 @@ describe KmlContains do
     end
   end
 
+  describe '.extended_data' do
+    it 'returns an empty hash when no ExtendedData is present' do
+      kml_data = File.read(Support_Folder + 'colorado-test.kml')
+      region = KmlContains.parse_kml(kml_data)
+      region.each { |p| expect(p.extended_data).to eq({}) }
+    end
+
+    it 'parses Data elements' do
+      kml = <<-EOM
+      <kml>
+        <Placemark>
+          <name>Test</name>
+          <ExtendedData>
+            <Data name="lga_name"><value>Woollahra</value></Data>
+          </ExtendedData>
+          <Polygon>
+            <outerBoundaryIs>
+              <LinearRing>
+                <coordinates>
+                  -109.053040,41.002705,0.000000
+                  -102.046509,41.006847,0.000000
+                  -102.041016,36.991585,0.000000
+                  -109.048920,36.997070,0.000000
+                  -109.053040,41.002705,0.000000
+                </coordinates>
+              </LinearRing>
+            </outerBoundaryIs>
+          </Polygon>
+        </Placemark>
+      </kml>
+      EOM
+
+      region = KmlContains.parse_kml(kml)
+      polygon = region.first
+      expect(polygon.extended_data['lga_name']).to eq('Woollahra')
+    end
+
+    it 'parses SchemaData/SimpleData elements' do
+      kml = <<-EOM
+      <kml>
+        <Placemark>
+          <name>Test</name>
+          <ExtendedData>
+            <SchemaData schemaUrl="#schema1">
+              <SimpleData name="lga_name">Woollahra</SimpleData>
+            </SchemaData>
+          </ExtendedData>
+          <Polygon>
+            <outerBoundaryIs>
+              <LinearRing>
+                <coordinates>
+                  -109.053040,41.002705,0.000000
+                  -102.046509,41.006847,0.000000
+                  -102.041016,36.991585,0.000000
+                  -109.048920,36.997070,0.000000
+                  -109.053040,41.002705,0.000000
+                </coordinates>
+              </LinearRing>
+            </outerBoundaryIs>
+          </Polygon>
+        </Placemark>
+      </kml>
+      EOM
+
+      region = KmlContains.parse_kml(kml)
+      polygon = region.first
+      expect(polygon.extended_data['lga_name']).to eq('Woollahra')
+    end
+
+    it 'still populates placemark_name when ExtendedData is present' do
+      kml = <<-EOM
+      <kml>
+        <Placemark>
+          <name>My Placemark</name>
+          <ExtendedData>
+            <Data name="key"><value>val</value></Data>
+          </ExtendedData>
+          <Polygon>
+            <outerBoundaryIs>
+              <LinearRing>
+                <coordinates>
+                  -109.053040,41.002705,0.000000
+                  -102.046509,41.006847,0.000000
+                  -102.041016,36.991585,0.000000
+                  -109.048920,36.997070,0.000000
+                  -109.053040,41.002705,0.000000
+                </coordinates>
+              </LinearRing>
+            </outerBoundaryIs>
+          </Polygon>
+        </Placemark>
+      </kml>
+      EOM
+
+      region = KmlContains.parse_kml(kml)
+      polygon = region.first
+      expect(polygon.placemark_name).to eq('My Placemark')
+      expect(polygon.extended_data['key']).to eq('val')
+    end
+
+    it 'captures multiple data fields' do
+      kml = <<-EOM
+      <kml>
+        <Placemark>
+          <name>Test</name>
+          <ExtendedData>
+            <Data name="field1"><value>value1</value></Data>
+            <Data name="field2"><value>value2</value></Data>
+            <Data name="field3"><value>value3</value></Data>
+          </ExtendedData>
+          <Polygon>
+            <outerBoundaryIs>
+              <LinearRing>
+                <coordinates>
+                  -109.053040,41.002705,0.000000
+                  -102.046509,41.006847,0.000000
+                  -102.041016,36.991585,0.000000
+                  -109.048920,36.997070,0.000000
+                  -109.053040,41.002705,0.000000
+                </coordinates>
+              </LinearRing>
+            </outerBoundaryIs>
+          </Polygon>
+        </Placemark>
+      </kml>
+      EOM
+
+      region = KmlContains.parse_kml(kml)
+      polygon = region.first
+      expect(polygon.extended_data).to eq({
+        'field1' => 'value1',
+        'field2' => 'value2',
+        'field3' => 'value3'
+      })
+    end
+  end
+
   describe KmlContains::Point do
     describe '==' do
       it 'is true if both points contain the same values' do

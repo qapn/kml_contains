@@ -14,7 +14,8 @@ module KmlContains
 
     polygons = doc.search('Polygon').map do |polygon_kml|
       placemark_name = placemark_name_for_polygon(polygon_kml)
-      parse_kml_polygon_data(polygon_kml.to_s, placemark_name)
+      extended_data = extended_data_for_polygon(polygon_kml)
+      parse_kml_polygon_data(polygon_kml.to_s, placemark_name, extended_data)
     end
     KmlContains::Region.new(polygons)
   end
@@ -36,7 +37,7 @@ module KmlContains
 
   private
 
-  def self.parse_kml_polygon_data(string, name = nil)
+  def self.parse_kml_polygon_data(string, name = nil, extended_data = {})
     doc = Nokogiri::XML(string)
     # "A Polygon is defined by an outer boundary and 0 or more inner boundaries."
     outerboundary = doc.xpath('//outerBoundaryIs')
@@ -47,9 +48,9 @@ module KmlContains
       inner_boundary_polygons = innerboundaries.map do |i|
         KmlContains::Polygon.new(points_from_coordinates(i.xpath('.//coordinates').text.strip.split(/\s+/)))
       end
-      KmlContains::Polygon.new(points).with_placemark_name(name).with_inner_boundaries(inner_boundary_polygons)
+      KmlContains::Polygon.new(points).with_placemark_name(name).with_extended_data(extended_data).with_inner_boundaries(inner_boundary_polygons)
     else
-      KmlContains::Polygon.new(points).with_placemark_name(name)
+      KmlContains::Polygon.new(points).with_placemark_name(name).with_extended_data(extended_data)
     end
   end
 
@@ -60,13 +61,30 @@ module KmlContains
     end
   end
 
-  def self.placemark_name_for_polygon(p)
+  def self.placemark_for_polygon(p)
     # A polygon can be contained by a MultiGeometry or Placemark
     parent = p.parent
     parent = parent.parent if parent.name == 'MultiGeometry'
 
     return nil unless parent.name == 'Placemark'
 
-    parent.search('name').text
+    parent
+  end
+
+  def self.placemark_name_for_polygon(p)
+    placemark = placemark_for_polygon(p)
+    return nil unless placemark
+
+    placemark.search('name').text
+  end
+
+  def self.extended_data_for_polygon(p)
+    placemark = placemark_for_polygon(p)
+    return {} unless placemark
+
+    data = {}
+    placemark.search('Data').each { |d| data[d['name']] = d.search('value').text }
+    placemark.search('SimpleData').each { |sd| data[sd['name']] = sd.text }
+    data
   end
 end

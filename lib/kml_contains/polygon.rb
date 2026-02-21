@@ -1,6 +1,6 @@
 module KmlContains
   class Polygon
-    attr_reader :placemark_name, :inner_boundaries
+    attr_reader :placemark_name, :inner_boundaries, :extended_data
     extend Forwardable
 
     # Note @points is the outer boundary.
@@ -11,6 +11,7 @@ module KmlContains
       args.uniq!
       raise InsufficientPointsToActuallyFormAPolygonError unless args.size > 2
       @inner_boundaries = []
+      @extended_data = {}
       @points = args.dup
       precompute_normalised_bounds
     end
@@ -24,6 +25,11 @@ module KmlContains
 
     def with_placemark_name(placemark)
       @placemark_name ||= placemark
+      self
+    end
+
+    def with_extended_data(data)
+      @extended_data = data
       self
     end
 
