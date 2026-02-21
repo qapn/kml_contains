@@ -2,8 +2,8 @@
 require 'spec/spec_helper'
 require 'benchmark'
 
-colorado_region = BorderPatrol.parse_kml(File.read('spec/support/colorado-test.kml'))
-multi_polygon_region = BorderPatrol.parse_kml(File.read('spec/support/multi-polygon-test.kml'))
+colorado_region = KmlContains.parse_kml(File.read('spec/support/colorado-test.kml'))
+multi_polygon_region = KmlContains.parse_kml(File.read('spec/support/multi-polygon-test.kml'))
 Benchmark.bm(20) do |x|
   x.report('colorado region') do
     10_000.times do |_i|

@@ -1,12 +1,12 @@
 require 'set'
 require 'forwardable'
 require 'nokogiri'
-require 'border_patrol/version'
-require 'border_patrol/point'
-require 'border_patrol/polygon'
-require 'border_patrol/region'
+require 'kml_contains/version'
+require 'kml_contains/point'
+require 'kml_contains/polygon'
+require 'kml_contains/region'
 
-module BorderPatrol
+module KmlContains
   class InsufficientPointsToActuallyFormAPolygonError < ArgumentError; end
 
   def self.parse_kml(string)
@@ -16,7 +16,7 @@ module BorderPatrol
       placemark_name = placemark_name_for_polygon(polygon_kml)
       parse_kml_polygon_data(polygon_kml.to_s, placemark_name)
     end
-    BorderPatrol::Region.new(polygons)
+    KmlContains::Region.new(polygons)
   end
 
   def self.bounding_box(points)
@@ -50,18 +50,18 @@ module BorderPatrol
     points = points_from_coordinates(coordinates)
     if innerboundaries
       inner_boundary_polygons = innerboundaries.map do |i|
-        BorderPatrol::Polygon.new(points_from_coordinates(i.xpath('.//coordinates').text.strip.split(/\s+/)))
+        KmlContains::Polygon.new(points_from_coordinates(i.xpath('.//coordinates').text.strip.split(/\s+/)))
       end
-      BorderPatrol::Polygon.new(points).with_placemark_name(name).with_inner_boundaries(inner_boundary_polygons)
+      KmlContains::Polygon.new(points).with_placemark_name(name).with_inner_boundaries(inner_boundary_polygons)
     else
-      BorderPatrol::Polygon.new(points).with_placemark_name(name)
+      KmlContains::Polygon.new(points).with_placemark_name(name)
     end
   end
 
   def self.points_from_coordinates c
     c.map do |coord|
       x, y, _ = coord.strip.split(',')
-      BorderPatrol::Point.new(x.to_f, y.to_f)
+      KmlContains::Point.new(x.to_f, y.to_f)
     end
   end
 

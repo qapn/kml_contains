@@ -1,5 +1,5 @@
-module BorderPatrol
-  Point = Struct.new(:x, :y) unless defined?(::BorderPatrol::Point)
+module KmlContains
+  Point = Struct.new(:x, :y) unless defined?(::KmlContains::Point)
 
   class Point
     alias_method :latitude,   :y
@@ -24,7 +24,7 @@ module BorderPatrol
       self.class.inspect_string % latlng
     end
 
-    # IE: #<BorderPatrol::Point(lat, lng) = (-25.363882, 131.044922)>
+    # IE: #<KmlContains::Point(lat, lng) = (-25.363882, 131.044922)>
     def self.inspect_string
       @inspect_string ||= "#<#{name}(lat, lng) = (%p, %p)>"
     end

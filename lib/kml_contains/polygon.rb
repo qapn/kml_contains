@@ -1,4 +1,4 @@
-module BorderPatrol
+module KmlContains
   class Polygon
     attr_reader :placemark_name, :inner_boundaries
     extend Forwardable
@@ -84,11 +84,11 @@ module BorderPatrol
     end
 
     def bounding_box
-      BorderPatrol.bounding_box(self)
+      KmlContains.bounding_box(self)
     end
 
     def central_point
-      BorderPatrol.central_point(bounding_box)
+      KmlContains.central_point(bounding_box)
     end
   end
 end

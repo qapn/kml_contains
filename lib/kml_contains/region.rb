@@ -1,11 +1,11 @@
-module BorderPatrol
+module KmlContains
   class Region < Set
     def contains_point?(*point)
       point = case point.length
               when 1
                 point.first
               when 2
-                BorderPatrol::Point.new(point[0], point[1])
+                KmlContains::Point.new(point[0], point[1])
               else
                 fail ArgumentError, "#{point} is invalid.  Arguments can either be an object, or a longitude,lattitude pair."
               end
@@ -21,11 +21,11 @@ module BorderPatrol
       boxes = bounding_boxes
       boxes.flatten!
 
-      BorderPatrol.bounding_box(boxes)
+      KmlContains.bounding_box(boxes)
     end
 
     def central_point
-      BorderPatrol.central_point(bounding_box)
+      KmlContains.central_point(bounding_box)
     end
   end
 end

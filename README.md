@@ -1,6 +1,6 @@
-# BorderPatrol
+# KmlContains
 
-BorderPatrol allows you import a KML file and then check if points are inside or outside the polygons the file defines.
+KmlContains allows you import a KML file and then check if points are inside or outside the polygons the file defines.
 
 The KML file may have multiple polygons defined, google maps is a good source.
 
@@ -9,13 +9,13 @@ The KML file may have multiple polygons defined, google maps is a good source.
 An example KML file can be found here:
 http://maps.google.com/maps/ms?ie=UTF8&hl=en&msa=0&ll=38.814031,-103.743896&spn=9.600749,16.248779&z=7&msid=110523771099674876521.00049301d20252132a92c&output=kml
 
-To test if a point is in the region you can either pass a class that responds to `x` and `y` (like the provided BorderPatrol::Point class) or just pass a longitude latitude pair.
+To test if a point is in the region you can either pass a class that responds to `x` and `y` (like the provided KmlContains::Point class) or just pass a longitude latitude pair.
 
-    region = BorderPatrol.parse_kml(File.read('spec/support/colorado-test.kml'))
-    denver = BorderPatrol::Point.new(-105, 39.75)
+    region = KmlContains.parse_kml(File.read('spec/support/colorado-test.kml'))
+    denver = KmlContains::Point.new(-105, 39.75)
     region.contains_point?(denver) # true
     region.contains_point?(-105, 39.75) # also true!
-    san_francisco = BorderPatrol::Point.new(-122.5, 37.75)
+    san_francisco = KmlContains::Point.new(-122.5, 37.75)
     region.contains_point?(san_francisco) # false
     region.contains_point?(-122.5, 37.75) # also false!
 
@@ -32,7 +32,7 @@ We've been using it successfully in critical paths in production with zero impac
 
 ## Pro Tip
 
-You can make KML files easily on Google Maps by clicking "My Maps", drawing shapes and saving the map.  Just copy the share link and add "&output=kml" to download the file.g
+You can make KML files easily on Google Maps by clicking "My Maps", drawing shapes and saving the map.  Just copy the share link and add "&output=kml" to download the file.
 
 ## Dependencies
 
@@ -48,9 +48,15 @@ http://jakescruggs.blogspot.com/2009/07/point-inside-polygon-in-ruby.html for ev
 
 http://github.com/nofxx/georuby/ for providing the bounding box code.
 
-## Contributing
+## Credits
 
-Fork and patch! Before any changes are merged to master, we need you to sign an
-[Individual Contributor
-Agreement](https://spreadsheets.google.com/a/squareup.com/spreadsheet/viewform?formkey=dDViT2xzUHAwRkI3X3k5Z0lQM091OGc6MQ&ndplr=1)
-(Google Form).
+This gem was originally created as `border_patrol` at Square by **Zach Brock** and **Matt Wilson**.
+
+Contributors:
+
+* **Scott Gonyea** — Point class, lat/lng aliases, bounding box helpers, KML namespace support
+* **Rob Olson** — RSpec upgrades, Bundler fixes, version management
+* **Omar Qazi** — Placemark name parsing
+* **Denis Haskin** — Inner boundary (polygon hole) support
+* **Tamir Duberstein** — RuboCop, RSpec 3 migration, gem modernisation
+* **Erica Kwan** — CI setup
