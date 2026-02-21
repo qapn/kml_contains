@@ -20,14 +20,9 @@ module KmlContains
   end
 
   def self.bounding_box(points)
-    max_x, min_x, max_y, min_y = -Float::MAX, Float::MAX, -Float::MAX, Float::MAX
-    points.each do |point|
-      max_y = point.y if point.y > max_y
-      min_y = point.y if point.y < min_y
-      max_x = point.x if point.x > max_x
-      min_x = point.x if point.x < min_x
-    end
-    [Point.new(min_x, max_y), Point.new(max_x, min_y)]
+    xs = points.map(&:x)
+    ys = points.map(&:y)
+    [Point.new(xs.min, ys.max), Point.new(xs.max, ys.min)]
   end
 
   def self.central_point(box)

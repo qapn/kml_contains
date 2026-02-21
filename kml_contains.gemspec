@@ -8,11 +8,14 @@ Gem::Specification.new do |s|
   s.description = 'Check if points are inside or outside the region polygons in an imported KML file.'
   s.summary = 'Import and query KML regions'
   s.homepage = 'https://github.com/qapn/kml_contains'
+  s.license = 'MIT'
+  s.required_ruby_version = '>= 3.0'
 
   s.require_paths = ['lib']
   s.files = `git ls-files`.split("\n")
   s.add_runtime_dependency('nokogiri')
 
+  s.add_development_dependency('benchmark')
   s.add_development_dependency('rake')
   s.add_development_dependency('rspec')
 end

@@ -9,9 +9,10 @@ module KmlContains
     def initialize(*args)
       args.flatten!
       args.uniq!
-      fail InsufficientPointsToActuallyFormAPolygonError unless args.size > 2
+      raise InsufficientPointsToActuallyFormAPolygonError unless args.size > 2
       @inner_boundaries = []
-      @points = Array.new(args)
+      @points = args.dup
+      precompute_normalised_bounds
     end
 
     def_delegators :@points, :size, :each, :first, :include?, :[], :index
@@ -53,13 +54,16 @@ module KmlContains
 
     def contains_point?(point)
       return false unless inside_bounding_box?(point)
+      px = normalise_lng(point.x)
       c = false
       i = -1
       j = size - 1
       while (i += 1) < size
-        if (self[i].y <= point.y && point.y < self[j].y) ||
-           (self[j].y <= point.y && point.y < self[i].y)
-          if point.x < (self[j].x - self[i].x) * (point.y - self[i].y) / (self[j].y - self[i].y) + self[i].x
+        iy = self[i].y
+        jy = self[j].y
+        if (iy <= point.y && point.y < jy) ||
+           (jy <= point.y && point.y < iy)
+          if px < (@norm_xs[j] - @norm_xs[i]) * (point.y - iy) / (jy - iy) + @norm_xs[i]
             c = !c
           end
         end
@@ -74,21 +78,37 @@ module KmlContains
     end
 
     def inside_bounding_box?(point)
-      bb_point_1, bb_point_2 = bounding_box
-      max_x = [bb_point_1.x, bb_point_2.x].max
-      max_y = [bb_point_1.y, bb_point_2.y].max
-      min_x = [bb_point_1.x, bb_point_2.x].min
-      min_y = [bb_point_1.y, bb_point_2.y].min
-
-      !(point.x < min_x || point.x > max_x || point.y < min_y || point.y > max_y)
+      px = normalise_lng(point.x)
+      !(px < @bb_min_x || px > @bb_max_x ||
+        point.y < @bb_min_y || point.y > @bb_max_y)
     end
 
     def bounding_box
-      KmlContains.bounding_box(self)
+      [KmlContains::Point.new(@bb_min_x, @bb_max_y),
+       KmlContains::Point.new(@bb_max_x, @bb_min_y)]
     end
 
     def central_point
       KmlContains.central_point(bounding_box)
+    end
+
+    private
+
+    def normalise_lng(lng)
+      diff = lng - @ref_x
+      diff -= 360 while diff > 180
+      diff += 360 while diff < -180
+      @ref_x + diff
+    end
+
+    def precompute_normalised_bounds
+      @ref_x = @points.first.x
+      @norm_xs = @points.map { |p| normalise_lng(p.x) }
+      ys = @points.map(&:y)
+      @bb_min_x = @norm_xs.min
+      @bb_max_x = @norm_xs.max
+      @bb_min_y = ys.min
+      @bb_max_y = ys.max
     end
   end
 end

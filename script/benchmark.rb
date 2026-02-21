@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby -w
-require 'spec/spec_helper'
+require 'kml_contains'
 require 'benchmark'
 
 colorado_region = KmlContains.parse_kml(File.read('spec/support/colorado-test.kml'))

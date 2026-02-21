@@ -7,7 +7,7 @@ module KmlContains
               when 2
                 KmlContains::Point.new(point[0], point[1])
               else
-                fail ArgumentError, "#{point} is invalid.  Arguments can either be an object, or a longitude,lattitude pair."
+                raise ArgumentError, "#{point} is invalid.  Arguments can either be an object, or a longitude,lattitude pair."
               end
       any? { |polygon| polygon.contains_point?(point) }
     end

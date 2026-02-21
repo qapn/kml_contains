@@ -133,6 +133,36 @@ describe KmlContains::Polygon do
       end
     end
 
+    context 'when the polygon crosses the international date line' do
+      before do
+        points = [
+          KmlContains::Point.new(170, 10),
+          KmlContains::Point.new(-170, 10),
+          KmlContains::Point.new(-170, -10),
+          KmlContains::Point.new(170, -10),
+        ]
+        @polygon = KmlContains::Polygon.new(points)
+      end
+
+      it 'is true for a point inside the polygon (between 170 and 180)' do
+        expect(@polygon.contains_point?(KmlContains::Point.new(175, 0))).to be true
+      end
+
+      it 'is true for a point inside the polygon (between -180 and -170)' do
+        expect(@polygon.contains_point?(KmlContains::Point.new(-175, 0))).to be true
+      end
+
+      it 'is false for a point outside the polygon' do
+        expect(@polygon.contains_point?(KmlContains::Point.new(0, 0))).to be false
+        expect(@polygon.contains_point?(KmlContains::Point.new(160, 0))).to be false
+        expect(@polygon.contains_point?(KmlContains::Point.new(-160, 0))).to be false
+      end
+
+      it 'is false for a point outside the latitude range' do
+        expect(@polygon.contains_point?(KmlContains::Point.new(175, 15))).to be false
+      end
+    end
+
     context 'when there is an inner boundary' do
       before do
         @polygon = KmlContains::Polygon.new(KmlContains::Point.new(0, 0), KmlContains::Point.new(3, 0), KmlContains::Point.new(3,3), KmlContains::Point.new(0,3))
